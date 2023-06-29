@@ -64,7 +64,15 @@
 
 (defun main ()
   "The entry-point to the script."
-  ;; TODO: Implement a check
-  (command-get-available-source-names (file-to-string "../db/sources.lisp")))
+  (let* ((arguments (cdr *posix-argv*))
+         (command-name (car arguments))
+         (known-sources (file-to-string "../db/sources.lisp")))
+    (cond ((string-equal command-name "get_sources") (command-get-available-source-names known-sources))
+          ((string-equal command-name "search") (princ "Not implemented!"))
+          ((string-equal command-name "list") (princ "Not implemented!"))
+          ((string-equal command-name "install") (princ "Not implemented!"))
+          ((string-equal command-name "uninstall") (princ "Not implemented!"))
+          ((string-equal command-name "update") (princ "Not implemented!"))
+          (t (princ "Command not specified!")))))
 
 (main)
