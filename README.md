@@ -1,5 +1,9 @@
 # crater-db-reader
 
+[![Built with Lisp](https://img.shields.io/badge/built%20with-Lisp-blueviolet)](https://lisp-lang.org)
+[![License](https://img.shields.io/github/license/crater-space/db-reader.svg)](https://opensource.org/licenses/MIT)  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Y8Y5E5GL7)
+
 An adapter to read [Crater DB](https://github.com/crater-space/db) and generate shell scripts for appropriate actions
 
 ## Commands
