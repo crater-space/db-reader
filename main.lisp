@@ -44,22 +44,27 @@
 
 (defun command-search-packages (term)
   "Searches for packages matching the supplied search-term."
+  ;; TODO: Implement command
   )
 
 (defun command-list-packages ()
   "Lists installed packages."
+  ;; TODO: Implement command
   )
 
 (defun command-install-packages (packages)
   "Installs the specified packages."
+  ;; TODO: Implement command
   )
 
 (defun command-uninstall-packages (packages)
   "Uninstalls the specified packages."
+  ;; TODO: Implement command
   )
 
 (defun command-update-packages (packages)
   "Updates the specified (or all) packages."
+  ;; TODO: Implement command
   )
 
 (defun main ()
