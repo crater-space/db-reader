@@ -81,9 +81,46 @@
                              relevant-source-names)
                      :initial-value "")))))
 
-(defun command-install-packages (packages)
-  "Installs the specified packages."
-  )
+(defun command-install-packages (known-sources known-packages sources-query package-names)
+  "Installs the specified packages from among the supplied sources, using the known sources and known packages."
+  (labels ((get-package-by-name (package-name)
+             (find package-name known-packages :key #'car :test #'string-equal))
+           (get-suitable-source-for-package (package-ref source-names)
+             (car (remove-if-not (lambda (source-info)
+                                   (member (string-downcase (symbol-name (car source-info)))
+                                           source-names
+                                           :test #'string-equal))
+                                 (cadr package-ref))))
+           (get-source-by-name (source-name)
+             (find source-name known-sources :key #'car :test #'string-equal))
+           (get-install-command-for-source (source)
+             (cadar (remove-if-not (lambda (property-pair)
+                                     (and (listp property-pair)
+                                          (eql (car property-pair) :INSTALL)))
+                                   (cdr source))))
+           (get-install-command-for-package (package-ref source-names)
+             (let* ((source-ref (get-suitable-source-for-package package-ref source-names))
+                    (install-command (get-install-command-for-source
+                                      (get-source-by-name (string-downcase (symbol-name (car source-ref)))))))
+               (concatenate 'string
+                            install-command
+                            (reduce (lambda (a b)
+                                      (concatenate 'string a " " b))
+                                    (cdr source-ref)
+                                    :initial-value ""))
+               )))
+    (let* ((relevant-source-names (split-string sources-query ",")))
+      (princ (reduce (lambda (a b)
+                       (concatenate 'string
+                                    a
+                                    "
+"
+                                    b))
+                     (mapcar (lambda (package-name)
+                               (get-install-command-for-package (get-package-by-name package-name)
+                                                                relevant-source-names))
+                             package-names)
+                     :initial-value "")))))
 
 (defun command-uninstall-packages (packages)
   "Uninstalls the specified packages."
@@ -99,11 +136,15 @@
   "The entry-point to the script."
   (let* ((arguments (cdr *posix-argv*))
          (command-name (car arguments))
-         (known-sources (file-to-string "../db/sources.lisp")))
+         (known-sources (file-to-string "../db/sources.lisp"))
+         (known-packages (file-to-string "../db/packages.lisp")))
     (cond ((string-equal command-name "get_sources") (command-get-available-source-names known-sources))
           ((string-equal command-name "search") (princ "Not implemented!"))
           ((string-equal command-name "list") (command-list-packages known-sources (cadr arguments)))
-          ((string-equal command-name "install") (princ "Not implemented!"))
+          ((string-equal command-name "install") (command-install-packages known-sources
+                                                                           known-packages
+                                                                           (cadr arguments)
+                                                                           (cddr arguments)))
           ((string-equal command-name "uninstall") (princ "Not implemented!"))
           ((string-equal command-name "update") (princ "Not implemented!"))
           (t (princ "Command not specified!")))))
