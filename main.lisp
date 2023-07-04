@@ -1,10 +1,25 @@
 #!/usr/bin/sbcl --script
 
+(defun concatenate-on-same-line (a b)
+  "Concatenates the two supplied strings one after the other."
+  (concatenate 'string a b))
+
+(defun concatenate-by-spaces (a b)
+  "Concatenates the two supplied strings separated by spaces."
+  (concatenate 'string a " " b))
+
+(defun concatenate-on-next-line (a b)
+  "Concatenates the two supplied strings on two different lines."
+  (concatenate 'string
+               a
+               "
+"
+               b))
+
 (defun read-from-file (file-path)
   "Reads a file as string and parses it."
   (with-open-file (file-stream file-path)
-    (read-from-string (reduce (lambda (a b)
-                                (concatenate 'string a b))
+    (read-from-string (reduce #'concatenate-on-same-line
                               (loop for i from 0
                                     for line = (read-line file-stream nil nil)
                                     while line
@@ -48,8 +63,7 @@
                                           (cadr property-pair)))
                                    (cdr known-source))))
            (generate-if-ladder-for-sources (sources-and-commands)
-             (reduce (lambda (a b)
-                       (concatenate 'string a b))
+             (reduce #'concatenate-on-same-line
                      (mapcar (lambda (pair)
                                (concatenate 'string
                                             "if [ $(command -v " (second pair) ") ]; then "
@@ -84,12 +98,7 @@
                                           (eql (car property-pair) :LIST)))
                                    (cdr source)))))
     (let* ((relevant-source-names (split-string sources-query ",")))
-      (princ (reduce (lambda (a b)
-                       (concatenate 'string
-                                    a
-                                    "
-"
-                                    b))
+      (princ (reduce #'concatenate-on-next-line
                      (mapcar (lambda (source-name)
                                (get-list-command-for-source (get-source-by-name known-sources
                                                                                 source-name)))
@@ -110,18 +119,12 @@
                                                           (string-downcase (symbol-name (car source-ref)))))))
                (concatenate 'string
                             install-command
-                            (reduce (lambda (a b)
-                                      (concatenate 'string a " " b))
+                            (reduce #'concatenate-by-spaces
                                     (cdr source-ref)
                                     :initial-value ""))
                )))
     (let* ((relevant-source-names (split-string sources-query ",")))
-      (princ (reduce (lambda (a b)
-                       (concatenate 'string
-                                    a
-                                    "
-"
-                                    b))
+      (princ (reduce #'concatenate-on-next-line
                      (mapcar (lambda (package-name)
                                (get-install-command-for-package (get-package-by-name known-packages
                                                                                      package-name)
