@@ -54,6 +54,13 @@
                                 :test #'string-equal))
                       (cadr package-ref))))
 
+(defun source-external-p (source)
+  "Determines whether a source is external."
+  (car (remove-if-not (lambda (property-pair)
+                        (and (atom property-pair)
+                             (eql property-pair :EXTERNAL)))
+                      (cdr source))))
+
 (defun command-get-available-source-names (known-sources)
   "Gathers a list of available package sources."
   (labels ((get-command-name-for-source (known-source)
@@ -119,13 +126,20 @@
                     (source-name (if source-ref
                                      (string-downcase (symbol-name (car source-ref)))
                                      (car source-names)))
-                    (install-command (get-install-command-for-source (get-source-by-name known-sources
-                                                                                         source-name))))
-               (concatenate 'string
-                            install-command
-                            (reduce #'concatenate-by-spaces
-                                    (or (cdr source-ref) `(,package-name))
-                                    :initial-value "")))))
+                    (source (get-source-by-name known-sources
+                                                source-name)))
+               (if (source-external-p source)
+                   (concatenate 'string
+                                "echo \"Skipping installation of "
+                                package-name
+                                " using "
+                                source-name
+                                "\"!")
+                   (concatenate 'string
+                                (get-install-command-for-source source)
+                                (reduce #'concatenate-by-spaces
+                                        (or (cdr source-ref) `(,package-name))
+                                        :initial-value ""))))))
     (let* ((relevant-source-names (split-string sources-query ",")))
       (princ (reduce #'concatenate-on-next-line
                      (mapcar (lambda (package-name)
