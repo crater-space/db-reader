@@ -19,9 +19,25 @@
 			                   (find y x :test #'string=)))))
     (if n
 	    (split-string (subseq string 0 n)
-                 separator
-                 (cons (subseq string (1+ n)) r))
+                      separator
+                      (cons (subseq string (1+ n)) r))
         (cons string r))))
+
+(defun get-source-by-name (known-sources source-name)
+  "Find a source by name from within known sources."
+  (find source-name known-sources :key #'car :test #'string-equal))
+
+(defun get-package-by-name (known-packages package-name)
+  "Find a package by name from within known packages."
+  (find package-name known-packages :key #'car :test #'string-equal))
+
+(defun get-suitable-source-for-package (package-ref source-names)
+  "Determine suitable source for a package from within sources."
+  (car (remove-if-not (lambda (source-info)
+                        (member (string-downcase (symbol-name (car source-info)))
+                                source-names
+                                :test #'string-equal))
+                      (cadr package-ref))))
 
 (defun command-get-available-source-names (known-sources)
   "Gathers a list of available package sources."
@@ -62,9 +78,7 @@
 
 (defun command-list-packages (known-sources sources-query)
   "Lists installed packages from the supplied sources, using the known sources."
-  (labels ((get-source-by-name (source-name)
-             (find source-name known-sources :key #'car :test #'string-equal))
-           (get-list-command-for-source (source)
+  (labels ((get-list-command-for-source (source)
              (cadar (remove-if-not (lambda (property-pair)
                                      (and (listp property-pair)
                                           (eql (car property-pair) :LIST)))
@@ -77,23 +91,14 @@
 "
                                     b))
                      (mapcar (lambda (source-name)
-                               (get-list-command-for-source (get-source-by-name source-name)))
+                               (get-list-command-for-source (get-source-by-name known-sources
+                                                                                source-name)))
                              relevant-source-names)
                      :initial-value "")))))
 
 (defun command-install-packages (known-sources known-packages sources-query package-names)
   "Installs the specified packages from among the supplied sources, using the known sources and known packages."
-  (labels ((get-package-by-name (package-name)
-             (find package-name known-packages :key #'car :test #'string-equal))
-           (get-suitable-source-for-package (package-ref source-names)
-             (car (remove-if-not (lambda (source-info)
-                                   (member (string-downcase (symbol-name (car source-info)))
-                                           source-names
-                                           :test #'string-equal))
-                                 (cadr package-ref))))
-           (get-source-by-name (source-name)
-             (find source-name known-sources :key #'car :test #'string-equal))
-           (get-install-command-for-source (source)
+  (labels ((get-install-command-for-source (source)
              (cadar (remove-if-not (lambda (property-pair)
                                      (and (listp property-pair)
                                           (eql (car property-pair) :INSTALL)))
@@ -101,7 +106,8 @@
            (get-install-command-for-package (package-ref source-names)
              (let* ((source-ref (get-suitable-source-for-package package-ref source-names))
                     (install-command (get-install-command-for-source
-                                      (get-source-by-name (string-downcase (symbol-name (car source-ref)))))))
+                                      (get-source-by-name known-sources
+                                                          (string-downcase (symbol-name (car source-ref)))))))
                (concatenate 'string
                             install-command
                             (reduce (lambda (a b)
@@ -117,7 +123,8 @@
 "
                                     b))
                      (mapcar (lambda (package-name)
-                               (get-install-command-for-package (get-package-by-name package-name)
+                               (get-install-command-for-package (get-package-by-name known-packages
+                                                                                     package-name)
                                                                 relevant-source-names))
                              package-names)
                      :initial-value "")))))
