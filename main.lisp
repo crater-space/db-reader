@@ -112,22 +112,24 @@
                                      (and (listp property-pair)
                                           (eql (car property-pair) :INSTALL)))
                                    (cdr source))))
-           (get-install-command-for-package (package-ref source-names)
-             (let* ((source-ref (get-suitable-source-for-package package-ref source-names))
-                    (install-command (get-install-command-for-source
-                                      (get-source-by-name known-sources
-                                                          (string-downcase (symbol-name (car source-ref)))))))
+           (get-install-command-for-package (package-name source-names)
+             (let* ((package-ref (get-package-by-name known-packages
+                                                      package-name))
+                    (source-ref (get-suitable-source-for-package package-ref source-names))
+                    (source-name (if source-ref
+                                     (string-downcase (symbol-name (car source-ref)))
+                                     (car source-names)))
+                    (install-command (get-install-command-for-source (get-source-by-name known-sources
+                                                                                         source-name))))
                (concatenate 'string
                             install-command
                             (reduce #'concatenate-by-spaces
-                                    (cdr source-ref)
-                                    :initial-value ""))
-               )))
+                                    (or (cdr source-ref) `(,package-name))
+                                    :initial-value "")))))
     (let* ((relevant-source-names (split-string sources-query ",")))
       (princ (reduce #'concatenate-on-next-line
                      (mapcar (lambda (package-name)
-                               (get-install-command-for-package (get-package-by-name known-packages
-                                                                                     package-name)
+                               (get-install-command-for-package package-name
                                                                 relevant-source-names))
                              package-names)
                      :initial-value "")))))
