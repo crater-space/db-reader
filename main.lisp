@@ -42,9 +42,16 @@
   "Find a source by name from within known sources."
   (find source-name known-sources :key #'car :test #'string-equal))
 
+
+(defun package-matches-p (package-name package)
+  "Checks whether a package matches with the name or other known names."
+  (or (string-equal package-name
+                    (car package))
+      (member package-name (third package) :test #'string-equal)))
+
 (defun get-package-by-name (known-packages package-name)
   "Find a package by name from within known packages."
-  (find package-name known-packages :key #'car :test #'string-equal))
+  (find package-name known-packages :test #'package-matches-p))
 
 (defun get-suitable-source-for-package (package-ref source-names)
   "Determine suitable source for a package from within sources."
@@ -138,7 +145,10 @@
                    (concatenate 'string
                                 (get-install-command-for-source source)
                                 (reduce #'concatenate-by-spaces
-                                        (or (cdr source-ref) `(,package-name))
+                                        (or (cdr source-ref)
+                                            (if package-ref
+                                                `(,(car package-ref))
+                                                `(,package-name)))
                                         :initial-value ""))))))
     (let* ((relevant-source-names (split-string sources-query ",")))
       (princ (reduce #'concatenate-on-next-line
