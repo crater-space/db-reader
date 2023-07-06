@@ -147,7 +147,8 @@
                                      (car source-names)))
                     (source (get-source-by-name known-sources
                                                 source-name)))
-               (if (source-external-p source)
+               (if (and (null source-ref)
+			(source-external-p source))
                    (concatenate 'string
                                 "echo \"Skipping installation of "
                                 package-name
