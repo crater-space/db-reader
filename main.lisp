@@ -76,8 +76,7 @@
   (labels ((get-command-name-for-source (known-source)
              (cadar (remove-if-not (lambda (property-pair)
                                      (and (listp property-pair)
-                                          (eql (car property-pair) :COMMAND)
-                                          (cadr property-pair)))
+                                          (eql (car property-pair) :COMMAND)))
                                    (cdr known-source))))
            (generate-if-ladder-for-sources (sources-and-commands)
              (reduce #'concatenate-on-same-line
