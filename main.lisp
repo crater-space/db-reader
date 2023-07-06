@@ -102,9 +102,9 @@
                      :initial-value "")))
     (let* ((sources-and-commands (mapcar (lambda (known-source)
                                            `(,(car known-source)
-                                             ,(or (get-property-value-for-source known-source
-                                                                                 :COMMAND)
-                                                  (car known-source))))
+                                              ,(or (get-property-value-for-source known-source
+                                                                                  :COMMAND)
+                                                   (car known-source))))
                                          known-sources)))
       (print-with-newline "# Get a comma-separated list of available package sources"
                           t)
@@ -121,13 +121,15 @@
 (defun command-list-packages (known-sources sources-query)
   "Lists installed packages from the supplied sources, using the known sources."
   (let* ((relevant-source-names (split-string sources-query ",")))
-    (princ (reduce #'concatenate-on-next-line
-                   (mapcar (lambda (source-name)
-                             (get-property-value-for-source (get-source-by-name known-sources
-                                                                                source-name)
-                                                            :LIST))
-                           relevant-source-names)
-                   :initial-value ""))))
+    (mapc (lambda (source-name)
+            (print-with-newline (concatenate 'string
+                                             "# List packages using "
+                                             source-name))
+            (print-with-newline (get-property-value-for-source (get-source-by-name known-sources
+                                                                                   source-name)
+                                                               :LIST)
+                                t))
+          relevant-source-names)))
 
 (defun command-install-packages (known-sources known-packages sources-query package-names)
   "Installs the specified packages from among the supplied sources, using the known sources and known packages."
@@ -157,12 +159,14 @@
                                                 `(,package-name)))
                                         :initial-value ""))))))
     (let* ((relevant-source-names (split-string sources-query ",")))
-      (princ (reduce #'concatenate-on-next-line
-                     (mapcar (lambda (package-name)
-                               (get-install-command-for-package package-name
-                                                                relevant-source-names))
-                             package-names)
-                     :initial-value "")))))
+      (mapc (lambda (package-name)
+              (print-with-newline (concatenate 'string
+                                               "# Install "
+                                               package-name))
+              (print-with-newline (get-install-command-for-package package-name
+                                                                   relevant-source-names)
+                                  t))
+            package-names))))
 
 (defun command-uninstall-packages (packages)
   "Uninstalls the specified packages."
