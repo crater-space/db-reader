@@ -8,14 +8,6 @@
   "Concatenates the two supplied strings separated by spaces."
   (concatenate 'string a " " b))
 
-(defun concatenate-on-next-line (a b)
-  "Concatenates the two supplied strings on two different lines."
-  (concatenate 'string
-               a
-               "
-"
-               b))
-
 (defun read-from-file (file-path)
   "Reads a file as string and parses it."
   (with-open-file (file-stream file-path)
