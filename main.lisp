@@ -71,14 +71,19 @@
                 (and (atom property-pair)
                      (eql property-pair prop)))))
 
+(defun get-property-value-for-source (source property-name)
+  "Gets the property value for a supplied source."
+  (second (find property-name
+                (cdr source)
+                :test (lambda (prop property-pair)
+                        "Looks for the property-pair with the specified name."
+                        (and (listp property-pair)
+                             (eql (car property-pair)
+                                  prop))))))
+
 (defun command-get-available-source-names (known-sources)
   "Gathers a list of available package sources."
-  (labels ((get-command-name-for-source (known-source)
-             (cadar (remove-if-not (lambda (property-pair)
-                                     (and (listp property-pair)
-                                          (eql (car property-pair) :COMMAND)))
-                                   (cdr known-source))))
-           (generate-if-ladder-for-sources (sources-and-commands)
+  (labels ((generate-if-ladder-for-sources (sources-and-commands)
              (reduce #'concatenate-on-same-line
                      (mapcar (lambda (pair)
                                (concatenate 'string
@@ -90,7 +95,8 @@
                      :initial-value "")))
     (let* ((sources-and-commands (mapcar (lambda (known-source)
                                            `(,(car known-source)
-                                             ,(or (get-command-name-for-source known-source)
+                                             ,(or (get-property-value-for-source known-source
+                                                                                 :COMMAND)
                                                   (car known-source))))
                                          known-sources)))
       (princ (concatenate 'string
@@ -108,27 +114,18 @@
 
 (defun command-list-packages (known-sources sources-query)
   "Lists installed packages from the supplied sources, using the known sources."
-  (labels ((get-list-command-for-source (source)
-             (cadar (remove-if-not (lambda (property-pair)
-                                     (and (listp property-pair)
-                                          (eql (car property-pair) :LIST)))
-                                   (cdr source)))))
-    (let* ((relevant-source-names (split-string sources-query ",")))
-      (princ (reduce #'concatenate-on-next-line
-                     (mapcar (lambda (source-name)
-                               (get-list-command-for-source (get-source-by-name known-sources
-                                                                                source-name)))
-                             relevant-source-names)
-                     :initial-value "")))))
+  (let* ((relevant-source-names (split-string sources-query ",")))
+    (princ (reduce #'concatenate-on-next-line
+                   (mapcar (lambda (source-name)
+                             (get-property-value-for-source (get-source-by-name known-sources
+                                                                                source-name)
+                                                            :LIST))
+                           relevant-source-names)
+                   :initial-value ""))))
 
 (defun command-install-packages (known-sources known-packages sources-query package-names)
   "Installs the specified packages from among the supplied sources, using the known sources and known packages."
-  (labels ((get-install-command-for-source (source)
-             (cadar (remove-if-not (lambda (property-pair)
-                                     (and (listp property-pair)
-                                          (eql (car property-pair) :INSTALL)))
-                                   (cdr source))))
-           (get-install-command-for-package (package-name source-names)
+  (labels ((get-install-command-for-package (package-name source-names)
              (let* ((package-ref (get-package-by-name known-packages
                                                       package-name))
                     (source-ref (get-suitable-source-for-package package-ref source-names))
@@ -145,7 +142,8 @@
                                 source-name
                                 "\"!")
                    (concatenate 'string
-                                (get-install-command-for-source source)
+                                (get-property-value-for-source source
+                                                               :INSTALL)
                                 (reduce #'concatenate-by-spaces
                                         (or (cdr source-ref)
                                             (if package-ref
