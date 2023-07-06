@@ -53,12 +53,14 @@
                     (member package-name (third package) :test #'string-equal)))))
 
 (defun get-suitable-source-for-package (package-ref source-names)
-  "Determine suitable source for a package from within sources."
-  (car (remove-if-not (lambda (source-info)
-                        (member (string-downcase (symbol-name (car source-info)))
-                                source-names
-                                :test #'string-equal))
-                      (cadr package-ref))))
+  "Determine suitable source for a package from within relevant sources."
+  (find source-names
+        (second package-ref)
+        :test (lambda (source-names source-info)
+                "Looks for sources from within source names."
+                (member (string-downcase (symbol-name (car source-info)))
+                        source-names
+                        :test #'string-equal))))
 
 (defun source-external-p (source)
   "Determines whether a source is external."
