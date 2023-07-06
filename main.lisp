@@ -47,7 +47,7 @@
   (find package-name
         known-packages
         :test (lambda (package-name package)
-                "Checks whether a package matches with the name or other known names."
+                "Looks for a package with other known names."
                 (or (string-equal package-name
                                   (car package))
                     (member package-name (third package) :test #'string-equal)))))
@@ -64,10 +64,12 @@
 
 (defun source-external-p (source)
   "Determines whether a source is external."
-  (car (remove-if-not (lambda (property-pair)
-                        (and (atom property-pair)
-                             (eql property-pair :EXTERNAL)))
-                      (cdr source))))
+  (find :external
+        (cdr source)
+        :test (lambda (prop property-pair)
+                "Looks for a property named ':external'."
+                (and (atom property-pair)
+                     (eql property-pair prop)))))
 
 (defun command-get-available-source-names (known-sources)
   "Gathers a list of available package sources."
