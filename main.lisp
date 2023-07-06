@@ -102,7 +102,7 @@
                           t)
       (print-with-newline "available_sources=();")
       (print-with-newline (generate-if-ladder-for-sources sources-and-commands))
-      (print-with-newline "result=$(IFS=,; echo \"${available_sources[*]}\"")
+      (print-with-newline "result=$(IFS=,; echo \"${available_sources[*]}\")")
       (print-with-newline "echo $result"))))
 
 (defun command-search-packages (known-sources sources-query term)
