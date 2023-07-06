@@ -181,15 +181,15 @@
                                   t))
             package-names))))
 
-(defun command-uninstall-packages (packages)
+(defun command-uninstall-packages (known-sources known-packages sources-query package-names)
   "Uninstalls the specified packages."
   ;; TODO: Implement command
-  )
+  (princ "echo \"Uninstalling packages has not been implemented yet!\""))
 
-(defun command-update-packages (packages)
+(defun command-update-packages (known-sources sources-query package-names)
   "Updates the specified (or all) packages."
   ;; TODO: Implement command
-  )
+  (princ "echo \"Updating packages has not been implemented yet!\""))
 
 (defun main ()
   "The entry-point to the script."
@@ -208,8 +208,13 @@
                                                                            known-packages
                                                                            (cadr arguments)
                                                                            (cddr arguments)))
-          ((string-equal command-name "uninstall") (princ "Not implemented!"))
-          ((string-equal command-name "update") (princ "Not implemented!"))
+          ((string-equal command-name "uninstall") (command-uninstall-packages known-sources
+                                                                               known-packages
+                                                                               (cadr arguments)
+                                                                               (cddr arguments)))
+          ((string-equal command-name "update") (command-update-packages known-sources
+                                                                         (cadr arguments)
+                                                                         (cddr arguments)))
           (t (princ "Command not specified!")))))
 
 (main)
