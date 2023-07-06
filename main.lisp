@@ -42,16 +42,15 @@
   "Find a source by name from within known sources."
   (find source-name known-sources :key #'car :test #'string-equal))
 
-
-(defun package-matches-p (package-name package)
-  "Checks whether a package matches with the name or other known names."
-  (or (string-equal package-name
-                    (car package))
-      (member package-name (third package) :test #'string-equal)))
-
 (defun get-package-by-name (known-packages package-name)
   "Find a package by name from within known packages."
-  (find package-name known-packages :test #'package-matches-p))
+  (find package-name
+        known-packages
+        :test (lambda (package-name package)
+                "Checks whether a package matches with the name or other known names."
+                (or (string-equal package-name
+                                  (car package))
+                    (member package-name (third package) :test #'string-equal)))))
 
 (defun get-suitable-source-for-package (package-ref source-names)
   "Determine suitable source for a package from within sources."
