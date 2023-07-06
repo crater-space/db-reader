@@ -90,8 +90,8 @@
                      :initial-value "")))
     (let* ((sources-and-commands (mapcar (lambda (known-source)
                                            `(,(car known-source)
-                                              ,(or (get-command-name-for-source known-source)
-                                                   (car known-source))))
+                                             ,(or (get-command-name-for-source known-source)
+                                                  (car known-source))))
                                          known-sources)))
       (princ (concatenate 'string
                           "available_sources=();
