@@ -113,10 +113,23 @@
       (print-with-newline "result=$(IFS=,; echo \"${available_sources[*]}\"")
       (print-with-newline "echo $result"))))
 
-(defun command-search-packages (term)
+(defun command-search-packages (known-sources sources-query term)
   "Searches for packages matching the supplied search-term."
-  ;; TODO: Implement command
-  )
+  (let* ((relevant-source-names (split-string sources-query ",")))
+    (mapc (lambda (source-name)
+            (print-with-newline (concatenate 'string
+                                             "# Search for "
+                                             term
+                                             " using "
+                                             source-name))
+            (print-with-newline (concatenate 'string
+                                             (get-property-value-for-source (get-source-by-name known-sources
+                                                                                                source-name)
+                                                                            :SEARCH)
+                                             " "
+                                             term)
+                                t))
+          relevant-source-names)))
 
 (defun command-list-packages (known-sources sources-query)
   "Lists installed packages from the supplied sources, using the known sources."
@@ -184,9 +197,13 @@
          (command-name (car arguments))
          (known-sources (read-from-file "../db/sources.lisp"))
          (known-packages (read-from-file "../db/packages.lisp")))
+
     (cond ((string-equal command-name "get_sources") (command-get-available-source-names known-sources))
-          ((string-equal command-name "search") (princ "Not implemented!"))
-          ((string-equal command-name "list") (command-list-packages known-sources (cadr arguments)))
+          ((string-equal command-name "search") (command-search-packages known-sources
+                                                                         (cadr arguments)
+                                                                         (caddr arguments)))
+          ((string-equal command-name "list") (command-list-packages known-sources
+                                                                     (cadr arguments)))
           ((string-equal command-name "install") (command-install-packages known-sources
                                                                            known-packages
                                                                            (cadr arguments)
