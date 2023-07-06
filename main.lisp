@@ -81,6 +81,17 @@
                              (eql (car property-pair)
                                   prop))))))
 
+(defun print-newline ()
+  "Prints a carriage return to stdout."
+  (princ #\Newline))
+
+(defun print-with-newline (text &optional (another-one nil))
+  "Prints the supplied text to stdout ending with a carriage return."
+  (princ text)
+  (princ #\Newline)
+  (if another-one
+      (princ #\Newline)))
+
 (defun command-get-available-source-names (known-sources)
   "Gathers a list of available package sources."
   (labels ((generate-if-ladder-for-sources (sources-and-commands)
@@ -99,13 +110,12 @@
                                                                                  :COMMAND)
                                                   (car known-source))))
                                          known-sources)))
-      (princ (concatenate 'string
-                          "available_sources=();
-"
-                          (generate-if-ladder-for-sources sources-and-commands)
-                          "result=$(IFS=,; echo \"${available_sources[*]}\")
-"
-                          "echo $result")))))
+      (print-with-newline "# Get a comma-separated list of available package sources"
+                          t)
+      (print-with-newline "available_sources=();")
+      (print-with-newline (generate-if-ladder-for-sources sources-and-commands))
+      (print-with-newline "result=$(IFS=,; echo \"${available_sources[*]}\"")
+      (print-with-newline "echo $result"))))
 
 (defun command-search-packages (term)
   "Searches for packages matching the supplied search-term."
