@@ -81,10 +81,6 @@
                              (eql (car property-pair)
                                   prop))))))
 
-(defun print-newline ()
-  "Prints a carriage return to stdout."
-  (princ #\Newline))
-
 (defun print-with-newline (text &optional (another-one nil))
   "Prints the supplied text to stdout ending with a carriage return."
   (princ text)
