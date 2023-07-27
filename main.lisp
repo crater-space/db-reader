@@ -184,12 +184,9 @@
   ;; TODO: Implement command
   (princ "echo \"Updating packages has not been implemented yet!\""))
 
-(defun main (arguments)
+(defun main (arguments known-sources known-packages)
   "The entry-point to the script."
-  (let* ((command-name (car arguments))
-         (known-sources (read-from-file "../db/sources.lisp"))
-         (known-packages (read-from-file "../db/packages.lisp")))
-
+  (let* ((command-name (car arguments)))
     (cond ((string-equal command-name "get_sources") (command-get-available-source-names known-sources))
           ((string-equal command-name "search") (command-search-packages known-sources
                                                                          (cadr arguments)
@@ -209,4 +206,6 @@
                                                                          (cddr arguments)))
           (t (princ "Command not specified!")))))
 
-(main (cdr *posix-argv*))
+(main (cdr *posix-argv*)
+      (read-from-file "../db/sources.lisp")
+      (read-from-file "../db/packages.lisp"))
