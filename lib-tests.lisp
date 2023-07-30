@@ -45,3 +45,15 @@
         (is (equal (read-from-file "/tmp/crater-db-reader-test-file")
                    '(1 2 3))
             "reads content from file")))
+
+(def-suite* lib-tests-sources
+    :in lib-tests)
+
+(def-suite* lib-tests-packages
+    :in lib-tests)
+
+(def-suite* lib-tests-printing
+    :in lib-tests)
+
+(def-suite* lib-tests-commands
+    :in lib-tests)
