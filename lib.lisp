@@ -8,7 +8,7 @@
 
 (defun read-from-file (file-path)
   "Reads a file as string and parses it."
-  (with-open-file (file-stream file-path)
+  (with-open-file (file-stream file-path) ; TODO: Implement check for path validity
     (read-from-string (reduce #'concatenate-on-same-line
                               (loop for i from 0
                                     for line = (read-line file-stream nil nil)
