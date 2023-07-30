@@ -2,7 +2,7 @@
 
 (def-suite* lib-tests)
 
-(def-suite* lib-tests-concatenation
+(def-suite* lib-tests-string
     :in lib-tests)
 
 (test concatenates-on-same-line
@@ -20,6 +20,14 @@
       (is (string-equal (concatenate-by-spaces "a" nil)
                         "a ")
           "the only argument is returned, followed by a space"))
+
+(test splits-strings
+      (is (equal (split-string "a,b")
+                 '("a" "b"))
+          "splits string around comma, as default")
+      (is (equal (split-string "a:b" ":")
+                 '("a" "b"))
+          "splits string around a specific separator"))
 
 (def-suite* lib-tests-files
     :in lib-tests)

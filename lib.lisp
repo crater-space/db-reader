@@ -6,15 +6,6 @@
   "Concatenates the two supplied strings separated by spaces."
   (concatenate 'string a " " b))
 
-(defun read-from-file (file-path)
-  "Reads a file as string and parses it."
-  (with-open-file (file-stream file-path) ; TODO: Implement check for path validity
-    (read-from-string (reduce #'concatenate-on-same-line
-                              (loop for i from 0
-                                    for line = (read-line file-stream nil nil)
-                                    while line
-                                    collect line)))))
-
 ;; Courtesy: https://gist.github.com/siguremon/1174988/babcbdcbbfcb9f42df34f000f9326a26caa64be4
 (defun split-string (string &optional (separator ",") (r nil))
   "Splits a string around the (optionally) specified operator."
@@ -27,6 +18,15 @@
                       separator
                       (cons (subseq string (1+ n)) r))
         (cons string r))))
+
+(defun read-from-file (file-path)
+  "Reads a file as string and parses it."
+  (with-open-file (file-stream file-path) ; TODO: Implement check for path validity
+    (read-from-string (reduce #'concatenate-on-same-line
+                              (loop for i from 0
+                                    for line = (read-line file-stream nil nil)
+                                    while line
+                                    collect line)))))
 
 (defun get-source-by-name (known-sources source-name)
   "Find a source by name from within known sources."
