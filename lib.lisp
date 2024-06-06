@@ -134,7 +134,7 @@
                                 t))
           relevant-source-names)))
 
-(defun command-install-packages (known-sources known-packages sources-query package-names)
+(defun command-install-packages (known-sources known-packages sources-query packages-query)
   "Installs the specified packages from among the supplied sources, using the known sources and known packages."
   (labels ((get-install-command-for-package (package-name source-names)
              (let* ((package-ref (get-package-by-name known-packages
@@ -162,7 +162,8 @@
                                                 `(,(car package-ref))
                                                 `(,package-name)))
                                         :initial-value ""))))))
-    (let* ((relevant-source-names (split-string sources-query ",")))
+    (let* ((relevant-source-names (split-string sources-query ","))
+           (package-names (split-string packages-query ",")))
       (mapc (lambda (package-name)
               (print-with-newline (concatenate 'string
                                                "# Install "
@@ -172,12 +173,12 @@
                                   t))
             package-names))))
 
-(defun command-uninstall-packages (known-sources known-packages sources-query package-names)
+(defun command-uninstall-packages (known-sources known-packages sources-query packages-query)
   "Uninstalls the specified packages."
   ;; TODO: Implement command
   (princ "echo \"Uninstalling packages has not been implemented yet!\""))
 
-(defun command-update-packages (known-sources sources-query package-names)
+(defun command-update-packages (known-sources sources-query packages-query)
   "Updates the specified (or all) packages."
   ;; TODO: Implement command
   (princ "echo \"Updating packages has not been implemented yet!\""))
@@ -194,12 +195,12 @@
           ((string-equal command-name "install") (command-install-packages known-sources
                                                                            known-packages
                                                                            (cadr arguments)
-                                                                           (cddr arguments)))
+                                                                           (caddr arguments)))
           ((string-equal command-name "uninstall") (command-uninstall-packages known-sources
                                                                                known-packages
                                                                                (cadr arguments)
-                                                                               (cddr arguments)))
+                                                                               (acddr arguments)))
           ((string-equal command-name "update") (command-update-packages known-sources
                                                                          (cadr arguments)
-                                                                         (cddr arguments)))
+                                                                         (caddr arguments)))
           (t (princ "Command not specified!")))))
